@@ -20,6 +20,9 @@
 uint8_t nodeID = 2;  // Change this to set your device's node ID
 
 
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -34,7 +37,6 @@ void setup() {
     .bus_off_io = TWAI_IO_UNUSED,
     .tx_queue_len = 5,
     .rx_queue_len = 5,
-    .alerts_enabled = TWAI_ALERT_RX_DATA,
     .clkout_divider = 0,
     .intr_flags = ESP_INTR_FLAG_LEVEL1
   };
@@ -63,7 +65,18 @@ void setup() {
     while (true);
   }
 
+  uint32_t alerts_to_enable = TWAI_ALERT_RX_QUEUE_FULL | TWAI_ALERT_TX_IDLE | TWAI_ALERT_BUS_ERROR;
+  if (twai_reconfigure_alerts(alerts_to_enable, NULL) == ESP_OK) {
+    Serial.println("TWAI alerts reconfigured");
+  } else {
+    Serial.println("Failed to reconfigure alerts");
+}
+
+
   Serial.println("TWAI driver started, filtering for ID 0x101");
+
+  
+
 }
 
 void loop() {

@@ -37,7 +37,6 @@ void setup() {
     .bus_off_io = TWAI_IO_UNUSED,
     .tx_queue_len = 5,
     .rx_queue_len = 5,
-    .alerts_enabled = TWAI_ALERT_RX_DATA,
     .clkout_divider = 0,
     .intr_flags = ESP_INTR_FLAG_LEVEL1
   };
@@ -66,6 +65,14 @@ void setup() {
     while (true);
   }
 
+  uint32_t alerts_to_enable = TWAI_ALERT_RX_QUEUE_FULL | TWAI_ALERT_TX_IDLE | TWAI_ALERT_BUS_ERROR;
+  if (twai_reconfigure_alerts(alerts_to_enable, NULL) == ESP_OK) {
+    Serial.println("TWAI alerts reconfigured");
+  } else {
+    Serial.println("Failed to reconfigure alerts");
+}
+
+
   Serial.println("TWAI driver started, filtering for ID 0x101");
 
   
@@ -79,7 +86,19 @@ void loop() {
     previousMillis = currentMillis;
     uint8_t sdoData[8] = {0x2F, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00}; // Example SDO write
     TransmitSDO(2, sdoData);
+    twai_status_info_t status;
+    twai_get_status_info(&status);
+    Serial.println(status.state);  // 0 = stopped, 1 = running, 2 = bus-off
+    Serial.print("TX Errors: "); Serial.println(status.tx_error_counter);
+    Serial.print("RX Errors: "); Serial.println(status.rx_error_counter);
+    Serial.print("Bus State: "); Serial.println(status.state);  // 0=stopped, 1=running, 2=bus-off
+    if (status.state == 2) {
+    Serial.println("Bus-Off detected. Attempting recovery...");
+    if (twai_initiate_recovery() == ESP_OK) {
+      Serial.println("Recovery initiated");
+    } else {
+      Serial.println("Recovery failed");
+    }
+    }
   }
-
-
 }
