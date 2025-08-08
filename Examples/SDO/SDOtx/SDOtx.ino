@@ -21,8 +21,13 @@
 // User code begin:
 uint8_t nodeID = 1;  // Change this to set your device's node ID
 
+//Sdo value to be sent
+uint8_t sdoValue;
+
+//timing for a non blocking fucntion occuring every two seconds
 unsigned long previousMillis = 0;
 const long interval = 2000; // 2 seconds
+
 // User code end
 
 void setup() {
@@ -80,14 +85,30 @@ void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    uint8_t sdoData[8] = {0x2F, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00}; // Example SDO write
-    TransmitSDO(2, sdoData);
-    Serial.print("SDO Data: ");
+
+    // Write 1 byte to node 2 (Speed in the dictionary)
+    uint8_t sdoDataWrite[8] = {0x2F, 0x01, 0x00, 0x00, sdoValue, 0x00, 0x00, 0x00};
+    TransmitSDO(2, sdoDataWrite, nullptr);
+    sdoValue++; // Increment for next write
+
+    //debug
+    Serial.print("SDO Write Data: ");
     for (int i = 0; i < 8; i++) {
-      if (sdoData[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
-      Serial.print(sdoData[i], HEX);
+      if (sdoDataWrite[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoDataWrite[i], HEX);
       Serial.print(" ");
     }
     Serial.println();
+
+    // Read heartbeat interval from node 2 (index 0x1017, subindex 0x00)
+    uint8_t sdoDataRead[8] = {0x40, 0x17, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00};
+    int32_t heartbeatInterval = 0;
+    TransmitSDO(2, sdoDataRead, &heartbeatInterval);
+
+    Serial.print("Heartbeat interval: ");
+    Serial.println(heartbeatInterval);
+
+
+    
   }
 }

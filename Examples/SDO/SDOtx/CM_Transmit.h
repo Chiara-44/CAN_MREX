@@ -15,7 +15,7 @@
 
 
 
-void TransmitSDO(uint8_t targetNodeID, uint8_t* data);
+void TransmitSDO(uint8_t targetNodeID, uint8_t* data, int32_t* outValue);
 
 
 #endif

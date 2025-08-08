@@ -75,7 +75,11 @@ void setup() {
 
 }
 
+
 void loop() {
   handleCAN(nodeID);
-  Serial.print(speed);
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+  }
 }
