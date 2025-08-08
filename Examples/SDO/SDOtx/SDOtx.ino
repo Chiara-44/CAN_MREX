@@ -14,14 +14,16 @@
 #include "CM_Transmit.h"
 #include "CM_ObjectDictionary.h"
 
-#define TX_GPIO_NUM GPIO_NUM_17
-#define RX_GPIO_NUM GPIO_NUM_16
+#define TX_GPIO_NUM GPIO_NUM_5
+#define RX_GPIO_NUM GPIO_NUM_4
 
+
+// User code begin:
 uint8_t nodeID = 1;  // Change this to set your device's node ID
-
 
 unsigned long previousMillis = 0;
 const long interval = 2000; // 2 seconds
+// User code end
 
 void setup() {
   Serial.begin(115200);
@@ -44,38 +46,32 @@ void setup() {
   // Timing configuration for 500 kbps
   twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
 
-  // // Filter to accept only standard ID 0x101
-  // twai_filter_config_t f_config = {
-  //   .acceptance_code = (0x101 << 21),  // left-align 11-bit ID
-  //   .acceptance_mask = (0x7FF << 21),  // mask all 11 bits
-  //   .single_filter = true
-  // };
-
   //Accept all messages
   twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
   // Install and start TWAI driver
   if (twai_driver_install(&g_config, &t_config, &f_config) != ESP_OK) {
     Serial.println("TWAI driver install failed");
-    while (true);
+    while (true); // blink an led perhaps to show problem
   }
 
   if (twai_start() != ESP_OK) {
     Serial.println("TWAI driver start failed");
-    while (true);
+    while (true); // blink an led perhaps to show problem
   }
 
+  //Debugging can be put in when debugging
   uint32_t alerts_to_enable = TWAI_ALERT_RX_QUEUE_FULL | TWAI_ALERT_TX_IDLE | TWAI_ALERT_BUS_ERROR;
   if (twai_reconfigure_alerts(alerts_to_enable, NULL) == ESP_OK) {
     Serial.println("TWAI alerts reconfigured");
   } else {
     Serial.println("Failed to reconfigure alerts");
-}
+  }
 
+  // User code Setup Begin:
 
-  Serial.println("TWAI driver started, filtering for ID 0x101");
+  // User code Setup end
 
-  
 
 }
 
@@ -86,19 +82,12 @@ void loop() {
     previousMillis = currentMillis;
     uint8_t sdoData[8] = {0x2F, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00}; // Example SDO write
     TransmitSDO(2, sdoData);
-    twai_status_info_t status;
-    twai_get_status_info(&status);
-    Serial.println(status.state);  // 0 = stopped, 1 = running, 2 = bus-off
-    Serial.print("TX Errors: "); Serial.println(status.tx_error_counter);
-    Serial.print("RX Errors: "); Serial.println(status.rx_error_counter);
-    Serial.print("Bus State: "); Serial.println(status.state);  // 0=stopped, 1=running, 2=bus-off
-    if (status.state == 2) {
-    Serial.println("Bus-Off detected. Attempting recovery...");
-    if (twai_initiate_recovery() == ESP_OK) {
-      Serial.println("Recovery initiated");
-    } else {
-      Serial.println("Recovery failed");
+    Serial.print("SDO Data: ");
+    for (int i = 0; i < 8; i++) {
+      if (sdoData[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoData[i], HEX);
+      Serial.print(" ");
     }
-    }
+    Serial.println();
   }
 }
