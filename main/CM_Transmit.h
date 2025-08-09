@@ -2,10 +2,11 @@
  * CAN MREX Transmits file 
  *
  * File:            CM_Transmits.h
- * Oraganisation:   MREX
+ * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   6/08/2025
+ * Last Modified:   9/08/2025
+ * Version:         1.1.1
  *
  */
 
@@ -15,7 +16,7 @@
 
 
 
-void TransmitSDO(uint8_t targetNodeID, uint8_t* data);
+void TransmitSDO(uint8_t targetNodeID, uint8_t* data, int32_t* outValue);
 
 
 #endif

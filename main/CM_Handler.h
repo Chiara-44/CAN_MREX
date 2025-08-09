@@ -2,12 +2,14 @@
  * CAN MREX Handler file 
  *
  * File:            CM_Handler.h
- * Oraganisation:   MREX
+ * Organisation:    MREX
  * Author:          Chiara Gillam
- * Date Created:    5/08/2025
- * Last Modified:   6/08/2025
+ * Date Created:    6/08/2025
+ * Last Modified:   9/08/2025
+ * Version:         1.1.1
  *
  */
+
 
 #ifndef CM_HANDLER_H
 #define CM_HANDLER_H

@@ -6,6 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
  * Last Modified:   6/08/2025
+ * Version:         1.1.1
  *
  */
 
@@ -82,6 +83,8 @@ void setup() {
 
 void loop() {
   handleCAN(nodeID);
+
+  //User Code begin loop()
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
@@ -107,8 +110,7 @@ void loop() {
 
     Serial.print("Heartbeat interval: ");
     Serial.println(heartbeatInterval);
-
-
-    
   }
+
+  //User code end loop()
 }

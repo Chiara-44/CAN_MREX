@@ -2,10 +2,11 @@
  * CAN MREX main (Template) file 
  *
  * File:            CM_Handler.cpp
- * Oraganisation:   MREX
+ * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   6/08/2025
+ * Last Modified:   9/08/2025
+ * Version:         1.1.1
  *
  */
 
@@ -14,10 +15,22 @@
 #include "CM_Transmit.h"
 #include "CM_ObjectDictionary.h"
 
-#define TX_GPIO_NUM GPIO_NUM_17
-#define RX_GPIO_NUM GPIO_NUM_16
 
-uint8_t nodeID = 2;  // Change this to set your device's node ID
+// User code begin:------------------------------------------------------
+
+#define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pins
+#define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins
+
+uint8_t nodeID = 1;  // Change this to set your device's node ID
+
+//OPTIONAL: timing for a non blocking fucntion occuring every two seconds
+// unsigned long previousMillis = 0;
+// const long interval = 2000; // 2 seconds
+
+
+
+// User code end ---------------------------------------------------------
+
 
 
 void setup() {
@@ -34,7 +47,6 @@ void setup() {
     .bus_off_io = TWAI_IO_UNUSED,
     .tx_queue_len = 5,
     .rx_queue_len = 5,
-    .alerts_enabled = TWAI_ALERT_RX_DATA,
     .clkout_divider = 0,
     .intr_flags = ESP_INTR_FLAG_LEVEL1
   };
@@ -42,31 +54,40 @@ void setup() {
   // Timing configuration for 500 kbps
   twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
 
-  // // Filter to accept only standard ID 0x101
-  // twai_filter_config_t f_config = {
-  //   .acceptance_code = (0x101 << 21),  // left-align 11-bit ID
-  //   .acceptance_mask = (0x7FF << 21),  // mask all 11 bits
-  //   .single_filter = true
-  // };
-
-  //Accept all messages
-  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
-
   // Install and start TWAI driver
   if (twai_driver_install(&g_config, &t_config, &f_config) != ESP_OK) {
     Serial.println("TWAI driver install failed");
-    while (true);
+    while (true); // blink an led perhaps to show problem
   }
 
   if (twai_start() != ESP_OK) {
     Serial.println("TWAI driver start failed");
-    while (true);
+    while (true); // blink an led perhaps to show problem
   }
 
-  Serial.println("TWAI driver started, filtering for ID 0x101");
+  //OPTIONAL: Debugging can be put in when debugging
+  // uint32_t alerts_to_enable = TWAI_ALERT_RX_QUEUE_FULL | TWAI_ALERT_TX_IDLE | TWAI_ALERT_BUS_ERROR;
+  // if (twai_reconfigure_alerts(alerts_to_enable, NULL) == ESP_OK) {
+  //   Serial.println("TWAI alerts reconfigured");
+  // } else {
+  //   Serial.println("Failed to reconfigure alerts");
+  // }
+
+  // User code Setup Begin: -------------------------------------------------
+
+  //Set filter for hardware filtering
+  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+  // User code Setup end ------------------------------------------------------
+
+
 }
 
 void loop() {
-  handleCAN(nodeID);
+  handleCAN(nodeID); // Handles all incoming can messages
 
+  //User Code begin loop() ----------------------------------------------------
+
+
+  //User code end loop() --------------------------------------------------------
 }
