@@ -91,10 +91,6 @@ void loop() {
 
     // Write 1 byte to node 2 (Speed in the dictionary)
     uint8_t sdoDataWrite[8] = {0x2F, 0x01, 0x00, 0x00, sdoValue, 0x00, 0x00, 0x00};
-    TransmitSDO(2, sdoDataWrite, nullptr);
-    sdoValue++; // Increment for next write
-
-    //debug
     Serial.print("SDO Write Data: ");
     for (int i = 0; i < 8; i++) {
       if (sdoDataWrite[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
@@ -102,14 +98,32 @@ void loop() {
       Serial.print(" ");
     }
     Serial.println();
+    TransmitSDO(2, sdoDataWrite, nullptr);
+    sdoValue++; // Increment for next write
+
+    //debug
+    
 
     // Read heartbeat interval from node 2 (index 0x1017, subindex 0x00)
     uint8_t sdoDataRead[8] = {0x40, 0x17, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    Serial.print("SDO Read Data Request: ");
+    for (int i = 0; i < 8; i++) {
+      if (sdoDataRead[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoDataRead[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+
     int32_t heartbeatInterval = 0;
     TransmitSDO(2, sdoDataRead, &heartbeatInterval);
-
-    Serial.print("Heartbeat interval: ");
-    Serial.println(heartbeatInterval);
+    Serial.print("SDO Read Data: ");
+    for (int i = 0; i < 8; i++) {
+      if (sdoDataRead[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoDataRead[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
   }
 
   //User code end loop()

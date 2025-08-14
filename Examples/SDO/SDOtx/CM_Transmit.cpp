@@ -27,8 +27,8 @@ void TransmitSDO(uint8_t targetNodeID, uint8_t* data, int32_t* outValue) {
     return;
   }
 
-  Serial.print("Sent SDO to node ");
-  Serial.println(targetNodeID);
+  // Serial.print("Sent SDO to node ");
+  // Serial.println(targetNodeID);
 
   // Wait for response
   twai_message_t response;
