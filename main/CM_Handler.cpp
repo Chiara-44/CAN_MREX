@@ -24,8 +24,8 @@ void handleCAN(uint8_t nodeID) {
 
   if (canID == 0x600 + nodeID) {
     handleSDO(rxMsg, nodeID);
-  } else if (canID == 0x200 + nodeID) {
-    handlePDO(rxMsg);
+  } elseif ((id >= 0x200 + nodeID) && (id <= 0x500 + nodeID)) {
+    processRPDO(rxMsg);     // Handles RPDO1–4
   } else if (canID == 0x000) {
     handleNMT(rxMsg);
   } else if (canID == 0x700 + nodeID) {

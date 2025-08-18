@@ -54,6 +54,9 @@ void setup() {
   // Timing configuration for 500 kbps
   twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
 
+  //Set filter for hardware filtering
+  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
   // Install and start TWAI driver
   if (twai_driver_install(&g_config, &t_config, &f_config) != ESP_OK) {
     Serial.println("TWAI driver install failed");
@@ -75,8 +78,7 @@ void setup() {
 
   // User code Setup Begin: -------------------------------------------------
 
-  //Set filter for hardware filtering
-  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+ 
 
   // User code Setup end ------------------------------------------------------
 
@@ -85,7 +87,7 @@ void setup() {
 
 void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
-
+  serviceTPDOs(nodeID);
   //User Code begin loop() ----------------------------------------------------
 
 
