@@ -1,12 +1,12 @@
 /**
  * CAN MREX main (Template) file 
  *
- * File:            CM_Handler.cpp
+ * File:            main.ino
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   9/08/2025
- * Version:         1.1.1
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
  *
  */
 
@@ -14,12 +14,13 @@
 #include "CM_Handler.h"
 #include "CM_Transmit.h"
 #include "CM_ObjectDictionary.h"
+#include "CM_PDO.h"
 
 
-// User code begin:------------------------------------------------------
+// User code begin: ------------------------------------------------------
 
-#define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pins
-#define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins
+#define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
+#define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins for CAN Receive
 
 uint8_t nodeID = 1;  // Change this to set your device's node ID
 
@@ -36,7 +37,7 @@ uint8_t nodeID = 1;  // Change this to set your device's node ID
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("CAN Receiver (TWAI)");
+  Serial.println("CAN MREX intialising over (TWAI)");
 
   // General configuration
   twai_general_config_t g_config = {
@@ -62,11 +63,15 @@ void setup() {
     Serial.println("TWAI driver install failed");
     while (true); // blink an led perhaps to show problem
   }
-
   if (twai_start() != ESP_OK) {
     Serial.println("TWAI driver start failed");
     while (true); // blink an led perhaps to show problem
   }
+
+  //Initializes all TPDOs and RPDOs as disabled and clears runtime state
+  initDefaultPDOs(nodeID);
+  //Setup OD with default entries
+  initDefaultOD()
 
   //OPTIONAL: Debugging can be put in when debugging
   // uint32_t alerts_to_enable = TWAI_ALERT_RX_QUEUE_FULL | TWAI_ALERT_TX_IDLE | TWAI_ALERT_BUS_ERROR;
@@ -87,7 +92,7 @@ void setup() {
 
 void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
-  serviceTPDOs(nodeID);
+  serviceTPDOs(nodeID); // Handles all TPDOs to be sent
   //User Code begin loop() ----------------------------------------------------
 
 

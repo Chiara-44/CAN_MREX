@@ -1,5 +1,19 @@
-// CM_PDO.h
-#pragma once
+/**
+ * CAN MREX Process Data object file
+ *
+ * File:            CM_PDO.h
+ * Organisation:    MREX
+ * Author:          Chiara Gillam
+ * Date Created:    18/08/2025
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
+ *
+ */
+
+
+#ifndef CM_PDO_H
+#define CM_PDO_H
+
 #include <Arduino.h>
 #include "driver/twai.h"
 
@@ -42,3 +56,14 @@ bool unpackRPDO(uint8_t pdoNum, const uint8_t* data, uint8_t len);
 
 // Optional: expose a simple API to trigger event-driven sends on change
 void markTpdoDirty(uint8_t pdoNum);
+
+// Communication setup
+void configureTPDO(uint8_t pdoNum, uint32_t cobID, uint8_t transType, uint16_t inhibitMs, uint16_t eventMs);
+void configureRPDO(uint8_t pdoNum, uint32_t cobID, uint8_t transType, uint16_t inhibitMs);
+
+// Mapping setup
+bool mapTPDO(uint8_t pdoNum, const PdoMapEntry* entries, uint8_t count);
+bool mapRPDO(uint8_t pdoNum, const PdoMapEntry* entries, uint8_t count);
+
+
+#endif

@@ -5,8 +5,8 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   9/08/2025
- * Version:         1.1.1
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
  *
  */
 
@@ -17,9 +17,8 @@
 #include <Arduino.h>
 #include "driver/twai.h"
 
-void handleCAN(uint8_t nodeID);
+void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg = nullptr);
 void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID);
-void handlePDO(const twai_message_t& rxMsg);
 void handleNMT(const twai_message_t& rxMsg);
 void handleHeartbeat(const twai_message_t& rxMsg);
 

@@ -1,18 +1,33 @@
-// CM_PDO.cpp
+/**
+ * CAN MREX Process Data object file
+ *
+ * File:            CM_PDO.cpp
+ * Organisation:    MREX
+ * Author:          Chiara Gillam
+ * Date Created:    18/08/2025
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
+ *
+ */
+
+
 #include "CM_PDO.h"
 #include "CM_ObjectDictionary.h"  // for findODEntry
 #include <string.h>
 
+//intialise all structs and variable
 static PdoComm rpdoComm[4];
 static PdoMap  rpdoMap[4];
 
 static PdoComm tpdoComm[4];
 static PdoMap  tpdoMap[4];
+
 static TpdoState tpdoState[4];
 static bool tpdoDirty[4];
 
-static bool operational = true; // gate with NMT state in your handler
+static bool operational = true; //TODO gate with NMT state in handler 
 
+// Sets communication parameters for a PDO (COB-ID, transmission type, timers, enable flag)
 static void setComm(PdoComm& c, uint32_t cob, uint8_t ttype, uint16_t inhibit_ms, uint16_t evt_ms) {
   c.cob_id = cob;
   c.trans_type = ttype;
@@ -21,29 +36,21 @@ static void setComm(PdoComm& c, uint32_t cob, uint8_t ttype, uint16_t inhibit_ms
   c.enabled = ((cob & 0x80000000u) == 0);
 }
 
+//------------------------------------------ User code begin: ------------------------------------------
+// Initializes all TPDOs and RPDOs as disabled and clears runtime state
 void initDefaultPDOs(uint8_t nodeId) {
-  // Defaults: enable TPDO1/RPDO1 only, async (255), no inhibit, 100 ms event timer
-  setComm(tpdoComm[0], 0x180 + nodeId, 255, 0, 100);
-  setComm(rpdoComm[0], 0x200 + nodeId, 255, 0, 0);
-  for (int i=1;i<4;i++) {
+  for (int i=0;i<4;i++) {
     setComm(tpdoComm[i], 0x80000000u | (0x180 + (i*0x100) + nodeId), 255, 0, 0); // disabled by bit31
     setComm(rpdoComm[i], 0x80000000u | (0x200 + (i*0x100) + nodeId), 255, 0, 0);
   }
 
-  // Example mapping:
-  // TPDO1: send speed (0x0001:00, 8 bits) + deviceMode (0x1000:00, 8 bits)
-  tpdoMap[0].count = 2;
-  tpdoMap[0].e[0] = {0x0001, 0x00, 8};
-  tpdoMap[0].e[1] = {0x1000, 0x00, 8};
-
-  // RPDO1: receive speed (8 bits)
-  rpdoMap[0].count = 1;
-  rpdoMap[0].e[0] = {0x0001, 0x00, 8};
-
   memset(tpdoState, 0, sizeof(tpdoState));
   memset(tpdoDirty, 0, sizeof(tpdoDirty));
 }
+//------------------------------------------ User code end ------------------------------------------
 
+
+// Reads a mapped variable from the object dictionary and packs it into a TPDO payload
 static bool readMapped(const PdoMapEntry& me, uint8_t* out, uint8_t& offsetBytes) {
   ODEntry* od = findODEntry(me.index, me.subindex);
   if (!od || (me.len_bits % 8) != 0) return false;
@@ -55,6 +62,7 @@ static bool readMapped(const PdoMapEntry& me, uint8_t* out, uint8_t& offsetBytes
   return true;
 }
 
+// Writes a received RPDO value into the corresponding object dictionary entry
 static bool writeMapped(const PdoMapEntry& me, const uint8_t* in, uint8_t& offsetBytes) {
   ODEntry* od = findODEntry(me.index, me.subindex);
   if (!od || (me.len_bits % 8) != 0) return false;
@@ -67,6 +75,7 @@ static bool writeMapped(const PdoMapEntry& me, const uint8_t* in, uint8_t& offse
   return true;
 }
 
+// Packs all mapped entries of a TPDO into a CAN payload buffer
 bool packTPDO(uint8_t pdoNum, uint8_t* outBytes, uint8_t* outLen) {
   if (pdoNum >= 4) return false;
   if (!tpdoComm[pdoNum].enabled) return false;
@@ -78,6 +87,7 @@ bool packTPDO(uint8_t pdoNum, uint8_t* outBytes, uint8_t* outLen) {
   return true;
 }
 
+// Unpacks an RPDO payload and writes its values into mapped object dictionary entries
 bool unpackRPDO(uint8_t pdoNum, const uint8_t* data, uint8_t len) {
   if (pdoNum >= 4) return false;
   if (!rpdoComm[pdoNum].enabled) return false;
@@ -92,6 +102,7 @@ bool unpackRPDO(uint8_t pdoNum, const uint8_t* data, uint8_t len) {
   return true;
 }
 
+// Processes an incoming RPDO message by matching its COB-ID and unpacking its data
 void processRPDO(const twai_message_t& rx) {
   if (!operational) return;
   // Identify RPDO channel by COB-ID
@@ -105,10 +116,12 @@ void processRPDO(const twai_message_t& rx) {
   }
 }
 
+// Marks a TPDO as dirty, triggering event-driven transmission on next service cycle
 void markTpdoDirty(uint8_t pdoNum) {
   if (pdoNum < 4) tpdoDirty[pdoNum] = true;
 }
 
+// Services all TPDOs: checks timers, dirty flags, inhibits, and transmits if due
 void serviceTPDOs(uint8_t nodeId) {
   if (!operational) return;
   uint32_t now = millis();
@@ -161,6 +174,36 @@ void serviceTPDOs(uint8_t nodeId) {
       // Serial.printf("TPDO%u transmit fail\n", i+1);
     }
   }
+}
+
+// Configures communication parameters for a TPDO channel
+void configureTPDO(uint8_t pdoNum, uint32_t cobID, uint8_t transType, uint16_t inhibitMs, uint16_t eventMs) {
+  if (pdoNum < 4) {
+    setComm(tpdoComm[pdoNum], cobID, transType, inhibitMs, eventMs);
+  }
+}
+
+// Configures communication parameters for an RPDO channel
+void configureRPDO(uint8_t pdoNum, uint32_t cobID, uint8_t transType, uint16_t inhibitMs) {
+  if (pdoNum < 4) {
+    setComm(rpdoComm[pdoNum], cobID, transType, inhibitMs, 0); // RPDOs don’t use event timers
+  }
+}
+
+// Maps object dictionary entries to a TPDO channel
+bool mapTPDO(uint8_t pdoNum, const PdoMapEntry* entries, uint8_t count) {
+  if (pdoNum >= 4 || count > 8) return false;
+  tpdoMap[pdoNum].count = count;
+  memcpy(tpdoMap[pdoNum].e, entries, count * sizeof(PdoMapEntry));
+  return true;
+}
+
+// Maps object dictionary entries to an RPDO channel
+bool mapRPDO(uint8_t pdoNum, const PdoMapEntry* entries, uint8_t count) {
+  if (pdoNum >= 4 || count > 8) return false;
+  rpdoMap[pdoNum].count = count;
+  memcpy(rpdoMap[pdoNum].e, entries, count * sizeof(PdoMapEntry));
+  return true;
 }
 
 // Expose a simple setter to sync NMT state from your handler

@@ -5,8 +5,8 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   9/08/2025
- * Version:         1.1.1
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
  *
  */
 
@@ -19,7 +19,6 @@
 
 extern uint8_t deviceMode;
 extern uint32_t heartbeatInterval;
-extern uint8_t speed;
 
 typedef struct {
   uint16_t index;
@@ -29,9 +28,8 @@ typedef struct {
   void* dataPtr;
 } ODEntry;
 
-extern ODEntry objectDictionary[];
-extern const int OD_SIZE;
-
 ODEntry* findODEntry(uint16_t index, uint8_t subindex);
+
+bool registerODEntry(uint16_t index, uint8_t subindex, uint8_t access, uint8_t size, void* dataPtr);
 
 #endif

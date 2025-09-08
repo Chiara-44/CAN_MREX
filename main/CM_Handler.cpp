@@ -5,8 +5,8 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   9/08/2025
- * Version:         1.1.1
+ * Last Modified:   8/09/2025
+ * Version:         1.1.2
  *
  */
 
@@ -14,24 +14,29 @@
 #include "CM_Handler.h"
 #include "driver/twai.h"
 #include "CM_ObjectDictionary.h"
+#include "CM_PDO.h"
 
-void handleCAN(uint8_t nodeID) {
+void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
+  //Receive the message
   twai_message_t rxMsg;
+  if (pdoMsg == nullptr){
+    if (twai_receive(&rxMsg, pdMS_TO_TICKS(10)) != ESP_OK) return;                                  //Throw error
+  } else {
+    rxMsg = *pdoMsg;
+  }
 
-  if (twai_receive(&rxMsg, pdMS_TO_TICKS(10)) != ESP_OK) return;
-
+  //Handle the message
   uint32_t canID = rxMsg.identifier;
-
-  if (canID == 0x600 + nodeID) {
+  if (canID == 0x600 + nodeID) {                                          //SDOs
     handleSDO(rxMsg, nodeID);
-  } elseif ((id >= 0x200 + nodeID) && (id <= 0x500 + nodeID)) {
-    processRPDO(rxMsg);     // Handles RPDO1–4
+  } else if ((canID >= 0x200 + nodeID) && (canID <= 0x500 + nodeID)) {    // Handles RPDO1–4 (CM_PDO.cpp)
+    processRPDO(rxMsg); 
   } else if (canID == 0x000) {
-    handleNMT(rxMsg);
+    handleNMT(rxMsg);                                                     // needs to be implemented
   } else if (canID == 0x700 + nodeID) {
     handleHeartbeat(rxMsg);
-  } else {
-    Serial.print("Unhandled CAN ID: 0x");
+  } else {                                                                //unhandles
+    Serial.print("Unhandled CAN ID: 0x");// Change this to an error code when filtering is up and running
     Serial.println(canID, HEX);
   }
 }
@@ -54,22 +59,23 @@ void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID) {
   txMsg.data[6] = 0;
   txMsg.data[7] = 0;
 
-  // Debug: Incoming SDO
-  Serial.print("SDO received: ");
-  for (int i = 0; i < 8; i++) {
-    if (rxMsg.data[i] < 0x10) Serial.print("0");
-    Serial.print(rxMsg.data[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
+  // // Debug: Incoming SDO
+  // Serial.print("SDO received: ");
+  // for (int i = 0; i < 8; i++) {
+  //   if (rxMsg.data[i] < 0x10) Serial.print("0");
+  //   Serial.print(rxMsg.data[i], HEX);
+  //   Serial.print(" ");
+  // }
+  // Serial.println();
 
+  //lookup OD entry
   ODEntry* entry = findODEntry(index, subindex);
   if (entry == nullptr) {
     Serial.println("OD entry not found");
-    return;
+    return;                                               // throw error here
   }
 
-  if (cmd == 0x40) { // Read request
+  if (cmd == 0x40) { // --- Read request ---
     memcpy(&txMsg.data[4], entry->dataPtr, entry->size);
 
     // Set correct response command byte based on size
@@ -80,40 +86,45 @@ void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID) {
       default: txMsg.data[0] = 0x43; break; // fallback
     }
 
-  } else {
+  } 
+
+  else {  // --- write request ---
     // Determine expected write size from command byte
     uint8_t expectedSize = 0;
-    if (cmd == 0x2F) expectedSize = 1;
-    else if (cmd == 0x2B) expectedSize = 2;
-    else if (cmd == 0x23) expectedSize = 4;
+    switch(cmd) {
+      case 0x2F: expectedSize = 1; break;
+      case 0x2B: expectedSize = 2; break;
+      case 0x23: expectedSize = 4; break;
+      default: expectedSize = 4; break;                   // throw error here 
+    }
 
+    //Copy into the OD
     if (expectedSize == entry->size) {
       memcpy(entry->dataPtr, &rxMsg.data[4], expectedSize);
       txMsg.data[0] = 0x60; // Write confirmation
-
-      // Debug: Show updated value
-      Serial.print("Updated value: ");
-      for (int i = 0; i < entry->size; i++) {
-        Serial.print(((uint8_t*)entry->dataPtr)[i], HEX);
-        Serial.print(" ");
-      }
-      Serial.println();
-
+      // // Debug: Show updated value
+      // Serial.print("Updated value: ");
+      // for (int i = 0; i < entry->size; i++) {
+      //   Serial.print(((uint8_t*)entry->dataPtr)[i], HEX);
+      //   Serial.print(" ");
+      // }
+      // Serial.println();
     } else {
-      Serial.println("SDO write size mismatch");
+      Serial.println("SDO write size mismatch");              // throw error here
       return; // Abort transmission
     }
   }
 
-  // Debug: Outgoing SDO response
-  Serial.print("SDO Response: ");
-  for (int i = 0; i < 8; i++) {
-    if (txMsg.data[i] < 0x10) Serial.print("0");
-    Serial.print(txMsg.data[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
+  // // Debug: Outgoing SDO response
+  // Serial.print("SDO Response: ");
+  // for (int i = 0; i < 8; i++) {
+  //   if (txMsg.data[i] < 0x10) Serial.print("0");
+  //   Serial.print(txMsg.data[i], HEX);
+  //   Serial.print(" ");
+  // }
+  // Serial.println();
 
+  // Send the response 
   if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) == ESP_OK) {
     Serial.println("SDO response sent");
   } else {
@@ -122,11 +133,6 @@ void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID) {
 }
 
 
-void handlePDO(const twai_message_t& rxMsg) {
-  int16_t sensorVal = (rxMsg.data[1] << 8) | rxMsg.data[0];
-  Serial.print("Received PDO value: ");
-  Serial.println(sensorVal);
-}
 
 void handleNMT(const twai_message_t& rxMsg) {
   Serial.print("Received NMT command: 0x");
