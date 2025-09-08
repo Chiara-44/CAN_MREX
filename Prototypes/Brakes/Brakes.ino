@@ -19,19 +19,26 @@
 
 // User code begin: ------------------------------------------------------
 
-uint8_t nodeID = 1;  // Change this to set your device's node ID
+
+
+uint8_t nodeID = 2;  // Change this to set your device's node ID
+
+
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
 #define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins for CAN Receive
+const int brakeControlPin = 18;  // Relay
+
+// State variables
+volatile bool brakeEngaged = false;
 
 // --- OD definitions ---
-
-
+uint8_t brake = 0;
 
 //OPTIONAL: timing for a non blocking fucntion occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
 
 // User code end ---------------------------------------------------------
 
@@ -85,9 +92,18 @@ void setup() {
   // }
 
   // User code Setup Begin: -------------------------------------------------
-  // --- Register OD entries ---
-  
- 
+  // Outputs
+  pinMode(brakeControlPin, OUTPUT);
+
+  // --- OD definitions ---
+  registerODEntry(0x3012, 0x01, 2, sizeof(uint8_t), &brake);
+
+  configureRPDO(0, 0x180 + 3, 255, 0);  // Recieve from node 3 (main controller)
+
+  PdoMapEntry tpdoEntries[] = {
+      {0x3012, 0x01, 8}    // Example: index 0x3012, subindex 1, 8 bits
+      };
+  mapRPDO(0, tpdoEntries, 1);
 
   // User code Setup end ------------------------------------------------------
 
@@ -97,8 +113,23 @@ void setup() {
 void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
   serviceTPDOs(nodeID); // Handles all TPDOs to be sent
-  //User Code begin loop() ----------------------------------------------------
 
+  //User Code begin loop() ----------------------------------------------------
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    Serial.print("Brake: ");
+    Serial.println(brake);
+    // --- Print brake state ---
+    if (brake != 0) {
+      digitalWrite(brakeControlPin, HIGH);  // Engage brake
+      Serial.println("Brake is on.");
+    } else {
+      digitalWrite(brakeControlPin, LOW);   // Release brake
+      Serial.println("Brake is off.");
+    }
+  }
+  
 
   //User code end loop() --------------------------------------------------------
 }

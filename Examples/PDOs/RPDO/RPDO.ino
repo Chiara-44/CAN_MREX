@@ -92,7 +92,7 @@ void setup() {
 
   PdoMapEntry rpdoEntries[] = {
     {0x2000, 0x01, 16},  // Example: index 0x2000, subindex 1, 16 bits
-      {0x2001, 0x00, 8}    // Example: index 0x2001, subindex 0, 8 bits
+    {0x2001, 0x00, 8}    // Example: index 0x2001, subindex 0, 8 bits
   };
   mapRPDO(0, rpdoEntries, 2);
 
