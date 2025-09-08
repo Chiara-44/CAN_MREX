@@ -29,7 +29,7 @@ void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
   uint32_t canID = rxMsg.identifier;
   if (canID == 0x600 + nodeID) {                                          //SDOs
     handleSDO(rxMsg, nodeID);
-  } else if ((canID >= 0x180) && (canID <= 0x5FF)) {    // Handles RPDO1–4 (CM_PDO.cpp)
+  } else if ((canID >= 0x200 + nodeID) && (canID <= 0x500 + nodeID)) {    // Handles RPDO1–4 (CM_PDO.cpp)
     processRPDO(rxMsg); 
   } else if (canID == 0x000) {
     handleNMT(rxMsg);                                                     // needs to be implemented

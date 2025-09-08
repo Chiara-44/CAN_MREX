@@ -38,8 +38,6 @@ bool registerODEntry(uint16_t index, uint8_t subindex, uint8_t access, uint8_t s
 
 void initDefaultOD(){
   registerODEntry(0x1000, 0x00, 2, sizeof(uint8_t), &deviceMode);
-  registerODEntry(0x1017, 0x00, 0, sizeof(uint32_t), &heartbeatInterval);
+  registerODEntry(0x1017, 0x00, 2, sizeof(uint32_t), &heartbeatInterval);
 }
 
-
-//TODO add in check whether rw access

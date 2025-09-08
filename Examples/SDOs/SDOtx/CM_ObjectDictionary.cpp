@@ -40,6 +40,3 @@ void initDefaultOD(){
   registerODEntry(0x1000, 0x00, 2, sizeof(uint8_t), &deviceMode);
   registerODEntry(0x1017, 0x00, 0, sizeof(uint32_t), &heartbeatInterval);
 }
-
-
-//TODO add in check whether rw access

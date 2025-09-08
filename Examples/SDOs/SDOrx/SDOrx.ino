@@ -22,12 +22,12 @@
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
 #define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins for CAN Receive
 
-uint8_t nodeID = 1;  // Change this to set your device's node ID
+uint8_t nodeID = 2;  // Change this to set your device's node ID
 
 //OPTIONAL: timing for a non blocking fucntion occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
-
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
+uint8_t mode = 0;
 
 
 // User code end ---------------------------------------------------------
@@ -82,7 +82,7 @@ void setup() {
   // }
 
   // User code Setup Begin: -------------------------------------------------
-
+  registerODEntry(0x0001, 0x00, 2, sizeof(uint8_t), &mode);
  
 
   // User code Setup end ------------------------------------------------------
@@ -94,7 +94,11 @@ void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
   serviceTPDOs(nodeID); // Handles all TPDOs to be sent
   //User Code begin loop() ----------------------------------------------------
-
-
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+  Serial.print("Mode: ");
+  Serial.println(mode);
+  }
   //User code end loop() --------------------------------------------------------
 }

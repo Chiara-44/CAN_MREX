@@ -25,9 +25,9 @@
 uint8_t nodeID = 1;  // Change this to set your device's node ID
 
 //OPTIONAL: timing for a non blocking fucntion occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
-
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
+uint8_t sdoValue = 0;
 
 
 // User code end ---------------------------------------------------------
@@ -94,7 +94,44 @@ void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
   serviceTPDOs(nodeID); // Handles all TPDOs to be sent
   //User Code begin loop() ----------------------------------------------------
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
 
+    // Write 1 byte to node 2 (Speed in the dictionary)
+    uint8_t sdoDataWrite[8] = {0x2F, 0x01, 0x00, 0x00, sdoValue, 0x00, 0x00, 0x00};
+    Serial.print("SDO Write speed: ");
+    for (int i = 0; i < 8; i++) {
+      if (sdoDataWrite[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoDataWrite[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+    Serial.print("Mode: ");
+    Serial.print(sdoValue);
+    Serial.println();
+
+    TransmitSDO(nodeID, 2, sdoDataWrite);
+    sdoValue++; // Increment for next write
+    
+
+    // Read heartbeat interval from node 2 (index 0x1017, subindex 0x00)
+    uint8_t sdoDataRead[8] = {0x40, 0x17, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    Serial.print("SDO Read Data Request: ");
+    for (int i = 0; i < 8; i++) {
+      if (sdoDataRead[i] < 0x10) Serial.print("0");  // Leading zero for single-digit hex
+      Serial.print(sdoDataRead[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+
+    uint32_t value = 0;
+    TransmitSDO(nodeID, 2, sdoDataRead, &value);
+    Serial.print("SDO Read Data: ");
+    Serial.print(value);
+    Serial.println();
+  }
 
   //User code end loop() --------------------------------------------------------
 }

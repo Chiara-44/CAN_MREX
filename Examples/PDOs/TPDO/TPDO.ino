@@ -25,10 +25,11 @@
 uint8_t nodeID = 1;  // Change this to set your device's node ID
 
 //OPTIONAL: timing for a non blocking fucntion occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
 
-
+uint16_t speed = 0;
+uint8_t brake = 0;
 
 // User code end ---------------------------------------------------------
 
@@ -82,8 +83,17 @@ void setup() {
   // }
 
   // User code Setup Begin: -------------------------------------------------
+  registerODEntry(0x2000, 0x01, 2, sizeof(uint16_t), &speed);
+  registerODEntry(0x2001, 0x00, 2, sizeof(uint8_t), &brake);
 
- 
+
+  configureTPDO(0, 0x180 + nodeID, 255, 100, 1000);  // COB-ID, transType, inhibit, event
+  
+  PdoMapEntry tpdoEntries[] = {
+      {0x2000, 0x01, 16},  // Example: index 0x2000, subindex 1, 16 bits
+      {0x2001, 0x00, 8}    // Example: index 0x2001, subindex 0, 8 bits
+    };
+  mapTPDO(0, tpdoEntries, 2);
 
   // User code Setup end ------------------------------------------------------
 
@@ -94,7 +104,17 @@ void loop() {
   handleCAN(nodeID); // Handles all incoming can messages
   serviceTPDOs(nodeID); // Handles all TPDOs to be sent
   //User Code begin loop() ----------------------------------------------------
-
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    Serial.print("Speed: ");
+    Serial.println(speed);
+    Serial.print("Brake: ");
+    Serial.println(brake);
+    speed += 2;
+    brake += 1;
+    
+  }
 
   //User code end loop() --------------------------------------------------------
 }
