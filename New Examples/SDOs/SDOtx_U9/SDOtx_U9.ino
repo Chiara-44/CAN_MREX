@@ -72,7 +72,7 @@ void loop() {
     previousMillis = currentMillis;
 
     // Write mode to node 2 (Speed in the dictionary)
-    executeSDOWrite(nodeID, 2, 0x0001, 0x00, &mode, sizeof(mode));
+    executeSDOWrite(nodeID, 2, 0x0001, 0x00, &mode, sizeof(mode));// Node ID, targeted node, index, subindex, value, size of value
 
     Serial.print("Mode transmitted: ");
     Serial.print(mode);
