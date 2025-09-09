@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
  * Last Modified:   8/09/2025
- * Version:         1.1.2
+ * Version:         1.1.3
  *
  */
 
@@ -17,6 +17,9 @@
 #include "CM_PDO.h"
 
 void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
+  
+  serviceTPDOs(nodeID); // Handles all TPDOs to be sent
+  
   //Receive the message
   twai_message_t rxMsg;
   if (pdoMsg == nullptr){
