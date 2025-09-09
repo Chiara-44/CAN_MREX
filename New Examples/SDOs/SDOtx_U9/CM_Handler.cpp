@@ -129,7 +129,7 @@ void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID) {
 
   // Send the response 
   if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) == ESP_OK) {
-    // Serial.println("SDO response sent");
+    Serial.println("SDO response sent");
   } else {
     Serial.println("Failed to send SDO response");
   }
