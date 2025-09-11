@@ -5,8 +5,8 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   8/09/2025
- * Version:         1.1.2
+ * Last Modified:   9/09/2025
+ * Version:         1.1.4
  *
  */
 
@@ -17,6 +17,9 @@
 #include "CM_PDO.h"
 
 void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
+  
+  serviceTPDOs(nodeID); // Handles all TPDOs to be sent
+  
   //Receive the message
   twai_message_t rxMsg;
   if (pdoMsg == nullptr){
@@ -29,7 +32,7 @@ void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
   uint32_t canID = rxMsg.identifier;
   if (canID == 0x600 + nodeID) {                                          //SDOs
     handleSDO(rxMsg, nodeID);
-  } else if ((canID >= 0x180) && (canID <= 0x5FF)) {    // Handles RPDO1–4 (CM_PDO.cpp)
+  } else if ((canID >= 0x180) && (canID <= 0x57F)) {    // Handles RPDO1–4 (CM_PDO.cpp)
     processRPDO(rxMsg); 
   } else if (canID == 0x000) {
     handleNMT(rxMsg);                                                     // needs to be implemented
@@ -126,7 +129,7 @@ void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID) {
 
   // Send the response 
   if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) == ESP_OK) {
-    Serial.println("SDO response sent");
+    // Serial.println("SDO response sent");
   } else {
     Serial.println("Failed to send SDO response");
   }
