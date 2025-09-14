@@ -5,22 +5,18 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   9/09/2025
- * Version:         1.1.3
+ * Last Modified:   13/09/2025
+ * Version:         1.1.4
  *
  */
 
-#include "driver/twai.h"
-#include "CM_Handler.h"
-#include "CM_Transmit.h"
-#include "CM_ObjectDictionary.h"
-#include "CM_PDO.h"
-#include "CM_Config.h"
-
+#include "CM.h" // inlcudes all CAN MREX files
 
 // User code begin: ------------------------------------------------------
 
-uint8_t nodeID = 1;  // Change this to set your device's node ID 
+const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const bool nmtMaster = false;
+const bool heartbeatConsumer = false;
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
@@ -29,32 +25,28 @@ uint8_t nodeID = 1;  // Change this to set your device's node ID
 // --- OD definitions ---
 
 
-
 //OPTIONAL: timing for a non blocking function occuring every two seconds
 // unsigned long previousMillis = 0;
 // const long interval = 2000; // 2 seconds
 
 // User code end ---------------------------------------------------------
 
-
-
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("CAN MREX intialising over (TWAI)");
-
+  Serial.println("Serial Coms started at 115200 baud");
+  
   //Initialize CANMREX protocol
-  initCANMREX(TX_GPIO_NUM, RX_GPIO_NUM);
-
-  //Initializes all TPDOs and RPDOs as disabled and clears runtime state
-  initDefaultPDOs(nodeID);
-
-  //Setup OD with default entries
-  initDefaultOD();
+  initCANMREX(TX_GPIO_NUM, RX_GPIO_NUM, nodeID);
 
   // User code Setup Begin: -------------------------------------------------
   // --- Register OD entries ---
+
+
+  // --- Register TPDOs ---
   
+
+  // --- Register RPDOs ---
  
 
   // User code Setup end ------------------------------------------------------
@@ -63,9 +55,21 @@ void setup() {
 }
 
 void loop() {
-  handleCAN(nodeID); // Handles all incoming can messages
   //User Code begin loop() ----------------------------------------------------
+  // --- Stopped mode (This is default starting point) ---
+  if (nodeOperatingMode == 0x02){ 
+    handleCAN(nodeID);
+  }
 
+  // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---
+  if (nodeOperatingMode == 0x80){ 
+    handleCAN(nodeID);
+  }
+
+  // --- Operational state (Normal operating mode) ---
+  if (nodeOperatingMode == 0x01){ 
+    handleCAN(nodeID);
+  }
 
   //User code end loop() --------------------------------------------------------
 }

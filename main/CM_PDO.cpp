@@ -38,10 +38,10 @@ static void setComm(PdoComm& c, uint32_t cob, uint8_t ttype, uint16_t inhibit_ms
 
 //------------------------------------------ User code begin: ------------------------------------------
 // Initializes all TPDOs and RPDOs as disabled and clears runtime state
-void initDefaultPDOs(uint8_t nodeId) {
+void initDefaultPDOs(uint8_t nodeID) {
   for (int i=0;i<4;i++) {
-    setComm(tpdoComm[i], 0x80000000u | (0x180 + (i*0x100) + nodeId), 255, 0, 0); // disabled by bit31
-    setComm(rpdoComm[i], 0x80000000u | (0x200 + (i*0x100) + nodeId), 255, 0, 0);
+    setComm(tpdoComm[i], 0x80000000u | (0x180 + (i*0x100) + nodeID), 255, 0, 0); // disabled by bit31
+    setComm(rpdoComm[i], 0x80000000u | (0x200 + (i*0x100) + nodeID), 255, 0, 0);
   }
 
   memset(tpdoState, 0, sizeof(tpdoState));
@@ -122,7 +122,7 @@ void markTpdoDirty(uint8_t pdoNum) {
 }
 
 // Services all TPDOs: checks timers, dirty flags, inhibits, and transmits if due
-void serviceTPDOs(uint8_t nodeId) {
+void serviceTPDOs(uint8_t nodeID) {
   if (!operational) return;
   uint32_t now = millis();
 

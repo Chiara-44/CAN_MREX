@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    9/09/2025
  * Last Modified:   9/09/2025
- * Version:         1.1.1
+ * Version:         1.1.2
  *
  */
 
@@ -17,7 +17,7 @@
 #include "driver/twai.h"
 
 
-void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM);
+void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM, uint8_t nodeID);
 
 
 #endif

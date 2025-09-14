@@ -5,8 +5,8 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
- * Last Modified:   9/09/2025
- * Version:         1.1.4
+ * Last Modified:   12/09/2025
+ * Version:         1.1.5
  *
  */
 
@@ -19,7 +19,5 @@
 
 void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg = nullptr);
 void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID);
-void handleNMT(const twai_message_t& rxMsg);
-void handleHeartbeat(const twai_message_t& rxMsg);
 
 #endif

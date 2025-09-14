@@ -44,11 +44,11 @@ struct TpdoState {
   bool     last_valid;
 };
 
-void initDefaultPDOs(uint8_t nodeId);
+void initDefaultPDOs(uint8_t nodeID);
 
 // Call in loop
 void processRPDO(const twai_message_t& rx);
-void serviceTPDOs(uint8_t nodeId);  // handles periodic/event-driven sends
+void serviceTPDOs(uint8_t nodeID);  // handles periodic/event-driven sends
 
 // Helpers
 bool packTPDO(uint8_t pdoNum, uint8_t* outBytes, uint8_t* outLen);

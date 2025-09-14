@@ -5,16 +5,19 @@
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    9/09/2025
- * Last Modified:   9/09/2025
- * Version:         1.1.1
+ * Last Modified:   12/09/2025
+ * Version:         1.1.2
  *
  */
 
 #include "driver/twai.h"
-#include "CM_Handler.h"
+#include "CM_ObjectDictionary.h"
+#include "CM_PDO.h"
 
 
-void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM){
+void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM, uint8_t nodeID){
+  Serial.println("CAN MREX intialising over (TWAI)");
+
   // General configuration
   twai_general_config_t g_config = {
     .mode = TWAI_MODE_NORMAL,
@@ -51,4 +54,12 @@ void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM){
   // } else {
   //   Serial.println("Failed to reconfigure alerts");
   // }
+
+  //Initializes all TPDOs and RPDOs as disabled and clears runtime state
+  Serial.print("Initialising Default PDOs");
+  initDefaultPDOs(nodeID);
+
+  //Setup OD with default entries
+  Serial.print("Initialising Default Object Dictionary");
+  initDefaultOD();
  }
