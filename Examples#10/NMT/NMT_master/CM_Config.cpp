@@ -56,10 +56,10 @@ void initCANMREX(gpio_num_t TX_GPIO_NUM, gpio_num_t RX_GPIO_NUM, uint8_t nodeID)
   // }
 
   //Initializes all TPDOs and RPDOs as disabled and clears runtime state
-  Serial.println("Initialising Default PDOs");
+  Serial.print("Initialising Default PDOs");
   initDefaultPDOs(nodeID);
 
   //Setup OD with default entries
-  Serial.println("Initialising Default Object Dictionary");
+  Serial.print("Initialising Default Object Dictionary");
   initDefaultOD();
  }

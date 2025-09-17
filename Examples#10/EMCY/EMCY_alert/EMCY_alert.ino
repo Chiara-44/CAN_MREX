@@ -15,6 +15,8 @@
 // User code begin: ------------------------------------------------------
 
 const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const bool nmtMaster = false;
+const bool heartbeatConsumer = false;
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
@@ -57,6 +59,11 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
+    Serial.println("Emergency stop in 5 seconds");
+    delay(5000);
+    Serial.println("Emergency stop");
+    sendEMCY(0x00, nodeID, 0x0000);
+    delay(20000);
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---

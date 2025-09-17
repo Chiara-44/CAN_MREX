@@ -27,6 +27,8 @@ const uint8_t nodeID = 1;  // Change this to set your device's node ID
 // unsigned long previousMillis = 0;
 // const long interval = 2000; // 2 seconds
 
+const int led = 17;
+
 // User code end ---------------------------------------------------------
 
 void setup() {
@@ -45,11 +47,12 @@ void setup() {
   
 
   // --- Register RPDOs ---
- 
+
+  pinMode(led, OUTPUT);
 
   // User code Setup end ------------------------------------------------------
 
-
+  nodeOperatingMode = 0x01;
 }
 
 void loop() {
@@ -57,6 +60,7 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
+    digitalWrite(led, HIGH);
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---
@@ -67,6 +71,7 @@ void loop() {
   // --- Operational state (Normal operating mode) ---
   if (nodeOperatingMode == 0x01){ 
     handleCAN(nodeID);
+    digitalWrite(led, LOW);
   }
 
   //User code end loop() --------------------------------------------------------

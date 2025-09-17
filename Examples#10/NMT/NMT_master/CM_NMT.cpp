@@ -13,10 +13,10 @@
 #include "CM_ObjectDictionary.h"
 #include "driver/twai.h"
 #include "CM_NMT.h"
-#include <Arduino.h>
+#include "Arduino.h"
 
 void handleNMT(const twai_message_t& rxMsg, uint8_t nodeID){
-  if (rxMsg.data[1] != nodeID) return;
+  if (rxMsg.data[1] != nodeID); return;
   nodeOperatingMode = rxMsg.data[0];
 }
 

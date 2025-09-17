@@ -36,6 +36,7 @@ void setup() {
   
   //Initialize CANMREX protocol
   initCANMREX(TX_GPIO_NUM, RX_GPIO_NUM, nodeID);
+  setupHeartbeatConsumer();
 
   // User code Setup Begin: -------------------------------------------------
   // --- Register OD entries ---

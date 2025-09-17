@@ -15,6 +15,8 @@
 // User code begin: ------------------------------------------------------
 
 const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const bool nmtMaster = false;
+const bool heartbeatConsumer = false;
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
@@ -24,8 +26,10 @@ const uint8_t nodeID = 1;  // Change this to set your device's node ID
 
 
 //OPTIONAL: timing for a non blocking function occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
+unsigned long previousMillis = 0;
+const long interval = 4000; // 2 seconds
+
+uint8_t node2OperatingState = 0x02;
 
 // User code end ---------------------------------------------------------
 
@@ -57,6 +61,21 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
+    uint32_t currentMs = millis();
+    if (currentMs - previousMillis >= interval){
+      previousMillis = currentMs;
+      if (node2OperatingState == 0x02) {
+        sendNMT(0x80, 0x02);
+        node2OperatingState = 0x80;
+      } else if (node2OperatingState == 0x80){
+        sendNMT(0x01, 0x02);
+        node2OperatingState = 0x01;
+      } else{
+        sendNMT(0x02, 0x02);
+        node2OperatingState = 0x02;
+      }
+      Serial.println(node2OperatingState);
+    }
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---

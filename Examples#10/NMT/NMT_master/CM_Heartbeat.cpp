@@ -36,7 +36,7 @@ void receiveHeartbeat(const twai_message_t rxMsg){
 }
 
 void printOperatingMode(){
-  Serial.println(node1Opertatingstate);
+  Serial.print(node1Opertatingstate);
 }
 
 

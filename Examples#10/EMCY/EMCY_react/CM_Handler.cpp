@@ -21,7 +21,6 @@
 
 void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
   serviceTPDOs(nodeID); // Handles all TPDOs to be sent
-  sendHeartbeat(nodeID); //sends Heartbeat periodically
 
   // Receive the message
   twai_message_t rxMsg;
