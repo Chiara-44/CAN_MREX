@@ -18,6 +18,5 @@
 #include "driver/twai.h"
 
 void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg = nullptr);
-void handleSDO(const twai_message_t& rxMsg, uint8_t nodeID);
 
 #endif

@@ -18,6 +18,7 @@
 
 void handleEMCY(const twai_message_t& rxMsg, uint8_t nodeID){
   if (rxMsg.data[0] == 0x00) nodeOperatingMode = 0x02;
+  // add in buffer for minor emergencies
 }
 
 

@@ -10,6 +10,9 @@
  *
  */
 
+ 
+// REMEMBER TO UNCOMMENT HEARTBEAT CONSUMER IN HANDLER
+
 #include "CM.h" // inlcudes all CAN MREX files
 
 // User code begin: ------------------------------------------------------
