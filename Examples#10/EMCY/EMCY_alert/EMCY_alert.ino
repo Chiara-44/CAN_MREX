@@ -1,22 +1,20 @@
 /**
- * CAN MREX main (Template) file 
+ * CAN MREx EMCY_alert file 
  *
- * File:            main.ino
- * Organisation:    MREX
+ * File:            EMCY_alert.ino
+ * Organisation:    MREx
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Last Modified:   30/09/2025
+ * Version:         Main Update 10
  *
  */
 
-#include "CM.h" // inlcudes all CAN MREX files
+#include "CM.h" // inlcudes all CAN MREx files
 
 // User code begin: ------------------------------------------------------
-
+// --- CAN MREx initialisation
 const uint8_t nodeID = 1;  // Change this to set your device's node ID
-const bool nmtMaster = false;
-const bool heartbeatConsumer = false;
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
@@ -25,11 +23,8 @@ const bool heartbeatConsumer = false;
 // --- OD definitions ---
 
 
-//OPTIONAL: timing for a non blocking function occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
-
 // User code end ---------------------------------------------------------
+
 
 void setup() {
   Serial.begin(115200);
@@ -51,8 +46,8 @@ void setup() {
 
   // User code Setup end ------------------------------------------------------
 
-
 }
+
 
 void loop() {
   //User Code begin loop() ----------------------------------------------------
@@ -62,7 +57,7 @@ void loop() {
     Serial.println("Emergency stop in 5 seconds");
     delay(5000);
     Serial.println("Emergency stop");
-    sendEMCY(0x00, nodeID, 0x0000);
+    sendEMCY(0x0, nodeID, 0x0000); // Major minor / Node ID / Type
     delay(20000);
   }
 

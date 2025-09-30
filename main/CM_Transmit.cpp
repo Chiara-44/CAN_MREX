@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
  * Last Modified:   9/09/2025
- * Version:         1.1.3
+ * Version:         1.10.1
  *
  */
 
@@ -78,7 +78,7 @@ void waitSDOResponse(uint32_t* outValue, uint8_t targetNodeID, uint8_t nodeID){
   unsigned long start = millis();
   twai_message_t response;
   while (millis() - start < 200) { // try until timeout and ensure messages received before are handled
-    if (twai_receive(&response, pdMS_TO_TICKS(10)) != ESP_OK) continue;       // throw error
+    if (twai_receive(&response, pdMS_TO_TICKS(5)) != ESP_OK) continue;       // throw error
 
     if (response.identifier == 0x580 + targetNodeID) { // Received response
       uint8_t cmd = response.data[0];

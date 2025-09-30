@@ -6,14 +6,15 @@
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
  * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Version:         1.10.1
  *
  */
+
 
 #include "CM.h" // inlcudes all CAN MREX files
 
 // User code begin: ------------------------------------------------------
-
+// --- CAN MREx initialisation ---
 const uint8_t nodeID = 1;  // Change this to set your device's node ID
 
 // --- Pin Definitions ---
@@ -23,11 +24,8 @@ const uint8_t nodeID = 1;  // Change this to set your device's node ID
 // --- OD definitions ---
 
 
-//OPTIONAL: timing for a non blocking function occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
-
 // User code end ---------------------------------------------------------
+
 
 void setup() {
   Serial.begin(115200);
@@ -51,6 +49,7 @@ void setup() {
 
 
 }
+
 
 void loop() {
   //User Code begin loop() ----------------------------------------------------

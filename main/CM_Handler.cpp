@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    6/08/2025
  * Last Modified:   12/09/2025
- * Version:         1.1.5
+ * Version:         1.10.1
  *
  */
 
@@ -26,7 +26,7 @@ void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
   // Receive the message
   twai_message_t rxMsg;
   if (pdoMsg == nullptr) {
-    if (twai_receive(&rxMsg, pdMS_TO_TICKS(100)) != ESP_OK) return; // Timeout or error
+    if (twai_receive(&rxMsg, pdMS_TO_TICKS(5)) != ESP_OK) return; // Timeout or error
   } else {
     rxMsg = *pdoMsg;
   }
@@ -50,6 +50,10 @@ void handleCAN(uint8_t nodeID, twai_message_t* pdoMsg) {
     handleSDO(rxMsg, nodeID);
     return;
   } 
+  // else if (canID >= 0x700 && canID <= 0x780) { // SDOs (processed in pre-op and operational)
+  //   receiveHeartbeat(rxMsg);
+  //   return;
+  // } // For heartbeat consumer only
   else {
     return;
   }

@@ -36,7 +36,7 @@ void setup() {
   
   //Initialize CANMREX protocol
   initCANMREX(TX_GPIO_NUM, RX_GPIO_NUM, nodeID);
-  setupHeartbeatConsumer();
+  setupHeartbeatConsumer(); // Initialise node as heart beat consumer
 
   // User code Setup Begin: -------------------------------------------------
   // --- Register OD entries ---
@@ -58,6 +58,7 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
+    checkHeartbeatTimeouts(); // Checks heartbeats to make sure they're not overdue
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---
