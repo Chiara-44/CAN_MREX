@@ -1,22 +1,20 @@
 /**
- * CAN MREX main (Template) file 
+ * CAN MREX NMT_master file 
  *
- * File:            main.ino
+ * File:            NMT_master.ino
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Last Modified:   1/10/2025
+ * Version:         Main Update #10
  *
  */
 
 #include "CM.h" // inlcudes all CAN MREX files
 
 // User code begin: ------------------------------------------------------
-
+// --- CAN MREx initialisation ---
 const uint8_t nodeID = 1;  // Change this to set your device's node ID
-const bool nmtMaster = false;
-const bool heartbeatConsumer = false;
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit

@@ -60,6 +60,7 @@ void loop() {
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
     digitalWrite(led, HIGH);
+    Serial.println("Off state")
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---

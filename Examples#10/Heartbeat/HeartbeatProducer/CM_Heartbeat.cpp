@@ -1,27 +1,25 @@
 /**
- * CAN MREX Heartbeat Implementation
+ * CAN MREX Heartbeat File
  *
  * File:            CM_Heartbeat.cpp
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    12/09/2025
- * Last Modified:   15/09/2025
- * Version:         1.1.2
+ * Last Modified:   30/09/2025
+ * Version:         1.10.2
  */
 
 
-
-// to setup a heartbeat consumer you must first put 
-
 #include "CM_Heartbeat.h"
 #include "CM_ObjectDictionary.h"
+#include "CM_EMCY.h"
 
 nodeHeartbeat heartbeatTable[MAX_NODES];
 
 static uint32_t lastHeartbeatSendTime = 0;
 const uint32_t heartbeatTimeout = 1500;   // 1.5 seconds
 
-// --- producer ---
+// --- Producer Functions ---
 void sendHeartbeat(uint8_t nodeID) {
   uint32_t currentMs = millis();
   if (currentMs - lastHeartbeatSendTime >= heartbeatInterval) {
@@ -37,16 +35,13 @@ void sendHeartbeat(uint8_t nodeID) {
   }
 }
 
-
-
-// --- consumer ---
+// --- Consumer Functions ---
 void receiveHeartbeat(const twai_message_t& rxMsg) {
   uint8_t nodeIndex = rxMsg.identifier - 0x700;
   if (nodeIndex < MAX_NODES && rxMsg.data_length_code >= 1) {
     heartbeatTable[nodeIndex].hbOperatingMode = rxMsg.data[0];
     heartbeatTable[nodeIndex].lastHeartbeat = millis();
   }
-  Serial.println("heartbeat Received");
 }
 
 void checkHeartbeatTimeouts() {
@@ -57,15 +52,12 @@ void checkHeartbeatTimeouts() {
   lastCheckTime = currentMs;
 
   for (uint8_t i = 0; i < MAX_NODES; i++) {
-    if (heartbeatTable[i].lastHeartbeat > 0 &&
-        currentMs - heartbeatTable[i].lastHeartbeat > heartbeatTimeout) {
-      Serial.print("ERROR: Node ");
-      Serial.print(i);
-      Serial.println(" heartbeat timeout!");
+    if (heartbeatTable[i].lastHeartbeat > 0 && currentMs - heartbeatTable[i].lastHeartbeat > heartbeatTimeout) {
+      nodeOperatingMode = 0x02;
+      sendEMCY(0x00, i, 0x00000101);
     }
   }
 }
-
 
 void setupHeartbeatConsumer() {
   for (uint8_t i = 0; i < MAX_NODES; i++) {

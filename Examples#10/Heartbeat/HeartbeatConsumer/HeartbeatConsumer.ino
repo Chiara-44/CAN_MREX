@@ -1,12 +1,12 @@
 /**
- * CAN MREX main (Template) file 
+ * CAN MREX HeartbeatConsumer file 
  *
- * File:            main.ino
+ * File:            HeartbeatConsumer.ino
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Last Modified:   1/10/2025
+ * Version:         Main update #10
  *
  */
 
@@ -17,7 +17,7 @@
 
 // User code begin: ------------------------------------------------------
 
-const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const uint8_t nodeID = 2;  // Change this to set your device's node ID
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
@@ -53,7 +53,7 @@ void setup() {
 
   // User code Setup end ------------------------------------------------------
 
-
+  nodeOperatingMode = 0x01;
 }
 
 void loop() {
@@ -61,7 +61,8 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
-    checkHeartbeatTimeouts(); // Checks heartbeats to make sure they're not overdue
+    Serial.println("Emegency stop");
+    delay(1000);
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---

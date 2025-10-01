@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    12/09/2025
  * Last Modified:   13/09/2025
- * Version:         1.1.1
+ * Version:         1.10.1
  *
  */
 
@@ -17,8 +17,8 @@
 
 
 void handleEMCY(const twai_message_t& rxMsg, uint8_t nodeID){
-  if (rxMsg.data[1] != nodeID); return;
   if (rxMsg.data[0] == 0x00) nodeOperatingMode = 0x02;
+  // add in buffer for minor emergencies
 }
 
 
@@ -38,7 +38,10 @@ void sendEMCY(uint8_t priority, uint8_t nodeID, uint32_t errorCode){
 
   // Transmit SDO request
   if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) != ESP_OK) {
-    Serial.println("Failed to send SDO request");
-  return; 
+    // Try once more
+    if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) != ESP_OK) {
+      Serial.println("EMCY transmission failed twice");
+      return;
+    }
   }
 }

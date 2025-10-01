@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    12/09/2025
  * Last Modified:   12/09/2025
- * Version:         1.1.1
+ * Version:         1.10.1
  *
  */
 
@@ -27,4 +27,8 @@ void sendNMT(uint8_t sendOperatingMode, uint8_t targetNodeID){
   txMsg.data_length_code = 2;
   txMsg.data[0] = sendOperatingMode;
   txMsg.data[1] = targetNodeID;
+  if (twai_transmit(&txMsg, pdMS_TO_TICKS(100)) != ESP_OK) {
+    Serial.println("Failed to send NMT command");
+    return;
+  }
 }

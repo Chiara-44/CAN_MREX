@@ -1,12 +1,12 @@
 /**
- * CAN MREX main (Template) file 
+ * CAN MREX HeartbeatProducer file 
  *
- * File:            main.ino
- * Organisation:    MREX
+ * File:            HeartbeatProducer.ino
+ * Organisation:    MREx
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Last Modified:   1/10/2025
+ * Version:         Main update #10
  *
  */
 
@@ -24,8 +24,8 @@ const uint8_t nodeID = 1;  // Change this to set your device's node ID
 
 
 //OPTIONAL: timing for a non blocking function occuring every two seconds
-// unsigned long previousMillis = 0;
-// const long interval = 2000; // 2 seconds
+unsigned long previousMillis = 0;
+const long interval = 10000; // 10 seconds
 
 // User code end ---------------------------------------------------------
 
@@ -48,8 +48,7 @@ void setup() {
  
 
   // User code Setup end ------------------------------------------------------
-
-
+  
 }
 
 void loop() {
@@ -57,6 +56,12 @@ void loop() {
   // --- Stopped mode (This is default starting point) ---
   if (nodeOperatingMode == 0x02){ 
     handleCAN(nodeID);
+    uint32_t currentMs = millis();
+    if (currentMs - previousMillis >= interval){ //cause a block longer than 1.5s to simulate node dropping out 
+      previousMillis = currentMs;
+      Serial.println("Simulating node dropout");
+      delay(2000);
+    }
   }
 
   // --- Pre operational state (This is where you can do checks and make sure that everything is okay) ---
@@ -65,7 +70,7 @@ void loop() {
   }
 
   // --- Operational state (Normal operating mode) ---
-  if (nodeOperatingMode == 0x01){ 
+  if (nodeOperatingMode == 0x01){
     handleCAN(nodeID);
   }
 

@@ -1,12 +1,12 @@
 /**
- * CAN MREX main (Template) file 
+ * CAN MREX NMT_slave file 
  *
- * File:            main.ino
+ * File:            NMT_slave.ino
  * Organisation:    MREX
  * Author:          Chiara Gillam
  * Date Created:    5/08/2025
- * Last Modified:   13/09/2025
- * Version:         1.1.4
+ * Last Modified:   1/10/2025
+ * Version:         Main Update #10
  *
  */
 

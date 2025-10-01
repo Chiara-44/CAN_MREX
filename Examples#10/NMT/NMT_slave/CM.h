@@ -6,7 +6,7 @@
  * Author:          Chiara Gillam
  * Date Created:    13/09/2025
  * Last Modified:   13/09/2025
- * Version:         1.1.1
+ * Version:         1.10.1
  *
  */
 
@@ -17,7 +17,7 @@
 
 #include "driver/twai.h"
 #include "CM_Handler.h"
-#include "CM_Transmit.h"
+#include "CM_SDO.h"
 #include "CM_ObjectDictionary.h"
 #include "CM_PDO.h"
 #include "CM_Config.h"
