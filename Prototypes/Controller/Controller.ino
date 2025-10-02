@@ -15,20 +15,21 @@
 
 // User code begin: ------------------------------------------------------
 // --- CAN MREx initialisation ---
-const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const uint8_t nodeID = 3;  // Change this to set your device's node ID
 
 // --- Pin Definitions ---
-#define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
-#define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins for CAN Receive
+#define TX_GPIO_NUM GPIO_NUM_25 // Set GPIO pin for CAN Transmit
+#define RX_GPIO_NUM GPIO_NUM_26 // Set GPIO pins for CAN Receive
+#define BRAKE_PIN GPIO_NUM_34
+#define SPEED_PIN GPIO_NUM_35
 
 // --- OD definitions ---
-uint8_t mode = 0;
-uint32_t heartbeatNode2;
+uint16_t desiredSpeed = 0;
+uint16_t regenBrake = 0;
 
 //OPTIONAL: timing for a non blocking function occuring every two seconds
 unsigned long previousMillis = 0;
-const long interval = 2000; // 2 seconds
-
+const long interval = 100; // 100 milliseconds
 
 // User code end ---------------------------------------------------------
 
@@ -43,10 +44,17 @@ void setup() {
 
   // User code Setup Begin: -------------------------------------------------
   // --- Register OD entries ---
-
+  registerODEntry(0x60FF, 0x00, 2, sizeof(desiredSpeed), &desiredSpeed);
+  registerODEntry(0x3012, 0x00, 2, sizeof(regenBrake), &regenBrake);
 
   // --- Register TPDOs ---
+  configureTPDO(0, 0x180 + nodeID, 255, 100, 100);  // COB-ID, transType, inhibit, event
   
+  PdoMapEntry tpdoEntries[] = {
+      {0x60FF, 0x00, 16},  // Example: index 0x2000, subindex 1, 16 bits
+      {0x3012, 0x00, 16}    // Example: index 0x2001, subindex 0, 8 bits
+    };
+  mapTPDO(0, tpdoEntries, 2); //TPDO 1, entries, num entries
 
   // --- Register RPDOs ---
  
@@ -72,25 +80,15 @@ void loop() {
   // --- Operational state (Normal operating mode) ---
   if (nodeOperatingMode == 0x01){ 
     handleCAN(nodeID);
+    regenBrake = analogRead(BRAKE_PIN);
+    desiredSpeed = analogRead(SPEED_PIN);
     unsigned long currentMillis = millis();
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-
-      // Write mode to node 2 (Speed in the dictionary)
-      executeSDOWrite(nodeID, 2, 0x0001, 0x00, &mode, sizeof(mode));// Node ID, targeted node, index, subindex, value, size of value
-
-      Serial.print("Mode transmitted: ");
-      Serial.print(mode);
-      Serial.println();
-      mode++;
-      
-
-      // Read heartbeat interval from node 2 (index 0x1017, subindex 0x00)
-      executeSDORead(nodeID, 2, 0x1017, 0x00, &heartbeatNode2);
-
-      Serial.print("Heartbeat from node 2 Received: ");
-      Serial.print(heartbeatNode2);
-      Serial.println();
+      Serial.print("Speed: ");
+      Serial.println(desiredSpeed);
+      Serial.print("Brake: ");
+      Serial.println(regenBrake);
     }
   }
 
