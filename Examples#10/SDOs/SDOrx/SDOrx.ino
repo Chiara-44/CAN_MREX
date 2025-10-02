@@ -15,14 +15,18 @@
 
 // User code begin: ------------------------------------------------------
 // --- CAN MREx initialisation ---
-const uint8_t nodeID = 1;  // Change this to set your device's node ID
+const uint8_t nodeID = 2;  // Change this to set your device's node ID
 
 // --- Pin Definitions ---
 #define TX_GPIO_NUM GPIO_NUM_5 // Set GPIO pin for CAN Transmit
 #define RX_GPIO_NUM GPIO_NUM_4 // Set GPIO pins for CAN Receive
 
 // --- OD definitions ---
+uint8_t mode = 0;
 
+//OPTIONAL: timing for a non blocking function occuring every two seconds
+unsigned long previousMillis = 0;
+const long interval = 2000; // 2 seconds
 
 // User code end ---------------------------------------------------------
 
@@ -37,7 +41,7 @@ void setup() {
 
   // User code Setup Begin: -------------------------------------------------
   // --- Register OD entries ---
-
+  registerODEntry(0x0001, 0x00, 2, sizeof(mode), &mode);
 
   // --- Register TPDOs ---
   
@@ -47,7 +51,7 @@ void setup() {
 
   // User code Setup end ------------------------------------------------------
 
-
+  nodeOperatingMode = 0x01;
 }
 
 
@@ -66,6 +70,12 @@ void loop() {
   // --- Operational state (Normal operating mode) ---
   if (nodeOperatingMode == 0x01){ 
     handleCAN(nodeID);
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+      Serial.print("Mode in OD: ");
+      Serial.println(mode);
+    }
   }
 
   //User code end loop() --------------------------------------------------------

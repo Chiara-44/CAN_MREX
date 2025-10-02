@@ -43,6 +43,9 @@ void setup() {
   
 
   // --- Register RPDOs ---
+
+
+  // --- Set pin modes ---
  
 
   // User code Setup end ------------------------------------------------------
